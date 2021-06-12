@@ -1,1 +1,1 @@
-# HelmetDetectionProject
+# HelmetDetectionApp
