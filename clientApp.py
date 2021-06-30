@@ -1,6 +1,6 @@
 from flask import Flask, json, request, jsonify, render_template
 import os
-
+import pandas as pd 
 from werkzeug.utils import secure_filename
 from flask_cors import CORS, cross_origin
 import base64
@@ -44,8 +44,11 @@ def predictRoute():
     result = clApp.objectDetection.getPrediction()
 
     result_img_64 = result[-1]['image']
-
+    
     imgdata = base64.b64decode(result_img_64)
+
+    data = pd.read_csv('Stored_data/data.csv')
+    
 
     with open("static/results/"+filename, 'wb+') as f:
         f.write(imgdata)
@@ -56,11 +59,20 @@ def predictRoute():
         confid = result[0]['confidence']
         path = "static/results/"+filename
         d = {'image': path}
+        flag = 'True'
+        df2 = pd.DataFrame([[filename, flag, confid]], columns=['Input','Result','Confidence'])
+        data = pd.concat([df2, data])
+        data.to_csv('Stored_data/data.csv')
         return json.dumps(d)
-        print('success')
+
     except Exception as e:
         path = "static/uploads/"+filename
         d = {'image': path}
+        flag = 'False'
+        confid = 0
+        df2 = pd.DataFrame([[filename, flag, confid]], columns=['Input','Result','Confidence'])
+        data = pd.concat([df2, data])
+        data.to_csv('Stored_data/data.csv')
         return json.dumps(d)
     
 
